@@ -1,0 +1,89 @@
+################################### First Analysis ###########################
+
+a <- read.csv("C:\\Users\\Guest\\Documents\\R training\\Customer_Seg\\SEG_TEST.csv")
+
+
+## Elbow method chart
+
+u <- a[,2:ncol(a)]
+ 
+set.seed(123)
+ 
+k.max <- 15
+ 
+wss <- sapply(1:k.max,function(k){kmeans(u,k,nstart=20)$tot.withinss})
+ 
+plot(1:k.max,wss,type="b",pch=19,frame=FALSE,xlab="Number of clusters K",ylab="Total within-clusters sum of squares",main="Elbow Method")
+ 
+
+# Use 4 clusters
+
+km <- kmeans(a[,2:ncol(a)],4)
+
+
+# Visual display of cluster plot of 4 clusters in 2 dimensions
+
+library(cluster)
+
+clusplot(a,km$cluster,main="Cluster plot of 4 cluster")
+
+
+
+################################ Normalized Data Analysis ###########################
+
+
+## Normalize data
+
+
+f <- function(x){
+	z <- (x-min(x))/(max(x)-min(x))
+	z
+}
+
+b <- data.frame(cbind(a[,1],apply(a[,2:ncol(a)],2,FUN=f)))
+
+
+## Elbow method for Normalized Data
+ 
+u <- b[,2:ncol(b)]
+ 
+set.seed(123)
+ 
+k.max <- 15
+ 
+wss <- sapply(1:k.max,function(k){kmeans(u,k,nstart=20)$tot.withinss})
+ 
+plot(1:k.max,wss,type="b",pch=19,frame=FALSE,xlab="Number of clusters K",ylab="Total within-clusters sum of squares",main="Elbow Method")
+ 
+
+# K means cluster with 3 clusters using Normalized Data
+
+km3 <- kmeans(b[,2:ncol(b)],3)
+cluster <- km3$cluster
+
+# Convert back to original data
+
+bd <- cbind(a,cluster)
+
+ba <- subset(bd,bd$cluster == 1)
+ba <- apply(ba[,2:ncol(ba)],2,FUN=mean)
+
+bb <- subset(bd,bd$cluster == 2)
+bb <- apply(bb[,2:ncol(bb)],2,FUN=mean)
+
+bc <- subset(bd,bd$cluster == 3)
+bc <- apply(bc[,2:ncol(bc)],2,FUN=mean)
+
+bi <- rbind(ba,bb,bc)
+
+
+# Visual display of normalized data cluster plot of 4 clusters in 2 dimensions
+
+library(cluster)
+
+clusplot(b,km3$cluster,main="Cluster plot of 3 cluster \n Using Normalized Data")
+
+
+write.csv(bd,"C:\\Users\\Guest\\Documents\\R training\\Alius Group\\result.csv")
+
+
